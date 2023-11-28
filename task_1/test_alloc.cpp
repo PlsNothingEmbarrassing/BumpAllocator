@@ -20,7 +20,7 @@ void testMemoryExhaustion() {
     int* ptr1 = allocator.alloc<int>(10); // Allocating space for 10 ints
     assert(ptr1 != nullptr);
 
-    int* ptr2 = allocator.alloc<int>(100); // Should fail as there isn't enough space
+    int* ptr2 = allocator.alloc<int>(100); // Should fail as there isnt space
     assert(ptr2 == nullptr);
 
     std::cout << "Test Memory Exhaustion: Passed" << std::endl;
@@ -29,11 +29,11 @@ void testMemoryExhaustion() {
 void testAlignment() {
     BumpAllocator<1024> allocator;
 
-    // Assuming int requires 4-byte alignment
+    // Assuming int requires 4 byte alignment
     int* intPtr = allocator.alloc<int>();
     assert(reinterpret_cast<uintptr_t>(intPtr) % alignof(int) == 0);
 
-    // Assuming double requires 8-byte alignment
+    // Assuming double requires 8 byte alignment
     double* doublePtr = allocator.alloc<double>();
     assert(reinterpret_cast<uintptr_t>(doublePtr) % alignof(double) == 0);
 
