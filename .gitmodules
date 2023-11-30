@@ -1,0 +1,3 @@
+[submodule "simpletest_test"]
+	path = simpletest_test
+	url = https://github.com/kudaba/simpletest_test
