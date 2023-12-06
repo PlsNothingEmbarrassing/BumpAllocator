@@ -47,3 +47,28 @@ For task 2 we were asked to use the simpletest framework to write unit tests for
 - AlignmentAndPaddingTest - To test that objects are being aligned correctly in memory and that padding is being calculated correctly. It creates an allocator instance then allocates objects of different types and alignments then calculates the padding based on the ptr position values. If the padding is within expected range then the allocator is performing correctly.
 
 ![Output of task 2 tests](Screenshots/task_2_test_output.png)
+
+
+## Task 3
+For task 3 we were asked to implement an allocator which bumps down as an alternative to our prior implementation which bumped up. Based on the blog post provided on the worksheet bumping down should be more efficient due to generating fewer lines of source code when compiled as well as using fewer registers than the bump up allocator. How true this will turn out to be for my code is provided in the benchmark results below.
+
+To measure the speed of execution based on the tests written for the previous task, I used variadric templates as suggested on the worksheet to create a benchmark function which would calculate the time it took for a function to execute. I also created another function "report_time" which would call the "benchmark" function to record the time and then output the execution time to the command line. In hindsight this probably could just be 1 combined function. 
+
+The code I used to benchmark the two allocator types is in benchmark.cpp. Each allocator is timed executing the previously written tests 5 times and an average time calculated to get a more fair result. The test code for the AlignmentAndPaddingTest is slightly modified for the bumpdown allocator but the only change is the order in which the allocations are made so this should not unfairly affect the results. For the first set of results the optimisation level was set to O2 and the second set to O3 to see if there was an observable difference.
+
+### O2 Optimisation level output
+#### Bumping Up results - Average execution time: 21760 nanoseconds
+![Bump Up benchmark results O2](Screenshots/bumpup_output_O2.png)
+#### Bumping Down results - Average execution time: 23100.6 nanoseconds
+![Bump Down benchmark results O2](Screenshots/bumpdown_output_O2.png)
+
+### O3 Optimisation level output
+#### Bumping Up results - Average execution time: 24980.6 nanoseconds
+![Bump Up benchmark results O3](Screenshots/bumpup_output_O3.png)
+
+#### Bumping Down results - Average execution time: 22460.4 nanoseconds 
+![Bump Down benchmark results O3](Screenshots/bumpdown_output_O3.png)
+
+### Evaluation of results
+
+Surprisingly the fastest average execution (though over a small sample), was the BumpUp allocator on the lower optimisation setting. This is not the logical outcome that one might expect but based on what I have observed over the course of working on this worksheet is that the times can vary quite substantially. Overall across all the benchmark results the times were very close together with variation across the averages of less than 4 microseconds.

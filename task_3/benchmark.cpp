@@ -1,6 +1,6 @@
 #include "BumpUp.hpp"
 #include "BumpDown.hpp"
-#include "benchmark.h"
+#include "benchmark.hpp"
 #include <simpletest.h>
 #include <chrono>
 #include <functional>
@@ -258,6 +258,7 @@ DEFINE_TEST_G(AlignmentAndPaddingTest, BumpDown){
 
 
 int runTests(char const* group)
+// The execution of this function is calculated
 {
     bool pass = true;
     
@@ -274,7 +275,7 @@ int main()
         int numRuns = 5;
         cout << "Running tests for group "<< group << endl;
         for(int i =0; i < numRuns; ++i){
-            // report time and the benchmark function it calls is a variadric template so I can pass as many args as I want 
+            // report time and the benchmark function it calls is a variadric template so I can pass any number of argfs
            auto execution_time = report_time("runTests", runTests, group);
            totalTime+=execution_time;
            cout << "Run " << (i+1) << ": " << execution_time << " nanoseconds" << endl;
@@ -290,5 +291,5 @@ int main()
     return 0;
 }
 
-// clang++ -std=c++17 -O2 -I./simpletest_test/simpletest/ benchmark.cpp ./simpletest_test/simpletest/simpletest.cpp
-// clang++ -std=c++17 -O3 -I./simpletest_test/simpletest/ benchmark.cpp ./simpletest_test/simpletest/simpletest.cpp
+// clang++ -std=c++17 -O2 -I../simpletest_test/simpletest/ benchmark.cpp ../simpletest_test/simpletest/simpletest.cpp
+// clang++ -std=c++17 -O3 -I../simpletest_test/simpletest/ benchmark.cpp ../simpletest_test/simpletest/simpletest.cpp
