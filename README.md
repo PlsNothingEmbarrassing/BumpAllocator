@@ -1,93 +1,49 @@
 # ASP Worksheet 2
+## Task 1
 
+For task 1 we were asked to implement a bump allocator with methods to alloc and dealloc. The allocator creates a heap of the specified size on creation and will return a pointer for the allocation of the data type being allocated. If there is not enough memory for an allocation it will return a nullptr. The allocator has an allocation count to keep track of the number of allocations. When dealloc is called the allocation count will be decremented. When the allocation count reaches 0, the next pointer is reset so that the heap memory is available for allocations.
 
+To create an instance of the allocator: BumpAllocator<Size(In bytes)> allocator and then to allocate using allocator.alloc<(datatype)>(numObjects).
 
-## Getting started
+### Task 1 member functions
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+alloc - Allocates memory for object(s). It is a template function so can take different data types, the number of objects to allocate can be specified, otherwise the default is 1.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+dealloc - Decrements the allocation counter unless the count has reached 0, whereas the next pointer will be reset so that the heap memory is available to allocate again.
 
-## Add your files
+getPtrPosition - Returns the position of the next pointer which points to the boundary of the used and unused memory.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+The allocator uses template functions so that it can handle different data types and is type safe.
+### Task 1 tests
+To test the functionality of the allocator I wrote a few basic tests and asserted that the values were correct.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.uwe.ac.uk/j5-hutton/asp-worksheet-2.git
-git branch -M main
-git push -uf origin main
-```
+testBasicAllocation - Creates a bump allocator instance with a KB of memory and allocates memory for an integer and a double and asserts that the returned pointers are not null.
 
-## Integrate with your tools
+testMemoryExhaustion - Creates a bump allocator with a small amount of memory (64 bytes) to demonstrate that the allocation method will return a nullptr if there is not enough memory to allocate more objects.
 
-- [ ] [Set up project integrations](https://gitlab.uwe.ac.uk/j5-hutton/asp-worksheet-2/-/settings/integrations)
+testAlignment - Creates a bump allocator with a KB of memory and allocates a couple of different data types and asserts that when they are allocated the memory address is correctly aligned e.g an int has an alignment requirement of 4 so there should be no remainder if when divided by alignof(int). Making sure that the heap is properly aligned is important as it can lead to increased CPU read cycles.
 
-## Collaborate with your team
+testDeallocation - Creates an allocator instance with 1KB memory. Allocates memory to 3 objects of varying types and then dealloc is called 3 times which should reset the ptr position back to the start of the heap. Asserts that the pointer is at the correct position. To further insure that the allocator is performing as intended, allocate memory for 10 ints and assert that the pointer is again in the correct position.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+testPaddingAndAlignment - To test that objects are being aligned correctly in memory and that padding is being calculated correctly. It creates an allocator instance then allocates objects of different types and alignments then calculates the padding based on the ptr position values. If the padding is within expected range then the allocator is performing correctly.
 
-## Test and Deploy
+![Output of task 1 tests](Screenshots/task_1_test_output.png)
 
-Use the built-in continuous integration in GitLab.
+## Task 2
+For task 2 we were asked to use the simpletest framework to write unit tests for our bump allocator. I adapted most of the tests that I had written for task 1 to use simpletest instead of cassert and added some others.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Task 2 tests
 
-***
+- BasicAllocTest - In this test the allocator is given space for 20 ints on the heap and 30 ints are allocated, 10 at a time to test that the returned ptr is valid unless there is not enough space to allocate to more objects. The allocator should fail to allocate the last 10 ints.
 
-# Editing this README
+- BasicDeallocTest - This test is almost identical to testDeallocation used in task 1, but modified to use the simpletest framework. Creates an allocator instance with 1KB memory. Allocates memory to 3 objects of varying types and then dealloc is called 3 times which should reset the ptr position back to the start of the heap. Asserts that the pointer is at the correct position. To further insure that the allocator is performing as intended, allocate memory for 10 ints and assert that the pointer is again in the correct position.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- TestAlignment - Creates a bump allocator with a KB of memory and allocates a couple of different data types and asserts that when they are allocated the memory address is correctly aligned e.g an int has an alignment requirement of 4 so there should be no remainder if when divided by alignof(int).
 
-## Suggestions for a good README
+- TestVaryingTypes - In this test the allocator is given 4KB of memory to allocate. It is then given the task of allocating exactly 4KB of memory to objects of varying sizes to see if there are any errors. There should not be any padding used as based on the data types being allocated memory, the heap should always be aligned correctly in this case. This test is to ensure that the allocator can handle allocations of varying types and sizes and that no unnecessary padding is added when it is not needed.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- BigAllocationsTest - To test that the allocator can handle larger allocations. Allocator is given 1MB of memory (mebibyte if you want to be a nerd) and allocates 10KB of memory at a time and asserts that the allocations have not failed.
 
-## Name
-Choose a self-explaining name for your project.
+- AlignmentAndPaddingTest - To test that objects are being aligned correctly in memory and that padding is being calculated correctly. It creates an allocator instance then allocates objects of different types and alignments then calculates the padding based on the ptr position values. If the padding is within expected range then the allocator is performing correctly.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+![Output of task 2 tests](Screenshots/task_2_test_output.png)

@@ -42,7 +42,7 @@ class BumpAllocator{
             next = 0;
         }
         
-        size_t getNextPosition()const{
+        size_t getPtrPosition()const{
             return next;
         }
 };
