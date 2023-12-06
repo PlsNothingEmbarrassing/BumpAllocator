@@ -1,33 +1,39 @@
 #include <iostream>
 // Size allocated to allocator
 template <size_t Size>
-class BumpAllocator{
+class BumpDown{
     private:
+    // 
         char heap[Size];
-        size_t next = 0;
+        size_t next = Size;
         int alloc_count = 0;        
     public:
-        BumpAllocator() = default;
+        BumpDown() = default;
         // Don't allow assignment
-        BumpAllocator& operator=(const BumpAllocator&) = delete;
+        BumpDown& operator=(const BumpDown&) = delete;
+        // Using template function 
         template <typename T>
         T* alloc(size_t N = 1){
             size_t alignment = alignof(T);
             size_t required_size = N * sizeof(T);
-            // align next and add padding if needed
+            // align next ptr 
             size_t current_alignment_offset = next % alignment;
-            size_t padding = (alignment - current_alignment_offset) % alignment;
-            size_t aligned_next = next + padding;
+            if(current_alignment_offset != 0){
+               next -= current_alignment_offset;
+            }
+            size_t aligned_next = next - required_size;         
             
-            // Check for overflow
-            if(aligned_next < next || aligned_next + required_size > Size){
+            
+            // Check for underflow
+            if(aligned_next > next || aligned_next < sizeof(heap) - Size){
                 return nullptr;
-            }            
-            
+            }
+            // update next            
+            next = aligned_next;
             /* Use reinterpret cast as we are just treating the memory location as different type not doing type conversions. Pointer reinterpretation instead of type conversion.*/
             T* result = reinterpret_cast<T*>(heap + aligned_next);
             // Move next to unallocated space partition
-            next = aligned_next + required_size;
+            
             alloc_count++;
             return result;
             
@@ -36,13 +42,18 @@ class BumpAllocator{
             if(alloc_count > 0){
                 alloc_count--;
                 if(alloc_count == 0){
-                    next = 0;
+                    next = Size; // reset pointer if no allocations left
                 }
             }
-            next = 0;
+            
         }
-        
-        size_t getNextPosition()const{
+        // Return next value for testing
+        size_t getPtrPosition()const{
             return next;
+        }
+
+        int getAllocCount() const
+        {
+            return alloc_count;
         }
 };

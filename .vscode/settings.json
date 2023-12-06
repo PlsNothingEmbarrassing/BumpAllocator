@@ -1,0 +1,8 @@
+{
+    "C_Cpp.intelliSenseEngineFallback": "disabled",
+    "files.associations": {
+        "chrono": "cpp",
+        "iostream": "cpp",
+        "thread": "cpp"
+    }
+}
